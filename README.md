@@ -82,5 +82,6 @@ Ejemplos:
 ---
 
 ## Documentación de requerimientos
-- Requerimientos funcionales: `requirements/functional-requirements.md`
-- Requerimientos no funcionales: `requirements/non-functional-requirements.md`
+- Requerimientos funcionales: `RF.md`
+
+- Requerimientos no funcionales: `RFN.md`
