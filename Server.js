@@ -5,8 +5,10 @@ const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/auth.routes");
 const eventRoutes = require("./routes/event.routes");
-const auth = require("./middleware/auth");
-const role = require("./middleware/role");
+const moderationRoutes = require("./routes/moderation.routes");
+
+const auth = require("./Middleware/auth");
+const role = require("./Middleware/role");
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/moderation", moderationRoutes);
 
 // Ruta privada de prueba
 app.get("/api/private", auth, (req, res) => {
