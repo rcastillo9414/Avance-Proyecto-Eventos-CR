@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PartyCR - Gestión de perfiles</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary" href="dashboard.html">PartyCR</a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="eventos.html">Eventos</a></li>
+          <li class="nav-item"><a class="nav-link" href="intinerarios.html">Intinerarios</a></li>
+          <li class="nav-item"><a class="nav-link" href="moderation.html">Validación</a></li>
+          <li class="nav-item"><a class="nav-link active" href="perfiles.html">Perfiles</a></li>
+          <li class="nav-item">
+            <button id="logoutBtn" type="button" class="btn btn-outline-danger btn-sm mt-2 mt-lg-0">
+              Cerrar sesión
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <section class="mb-4">
+      <div class="p-4 p-md-5 bg-primary-subtle rounded-4 shadow-sm border">
+        <h1 class="display-6 fw-bold text-primary">Gestión de perfiles</h1>
+        <p class="text-muted mb-0">
+          El promotor puede crear perfiles, ver los perfiles que administra y cambiar sus roles.
+        </p>
+      </div>
+    </section>
+
+    <div id="usersMessage" class="alert d-none" role="alert"></div>
+
+    <section class="row g-4 mb-4">
+      <div class="col-12 col-xl-5">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+            <h2 class="h4 fw-bold mb-3">Crear perfil</h2>
+
+            <form id="createUserForm">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="userName" class="form-label fw-semibold">Nombre</label>
+                  <input id="userName" type="text" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                  <label for="userEmail" class="form-label fw-semibold">Correo</label>
+                  <input id="userEmail" type="email" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                  <label for="userPassword" class="form-label fw-semibold">Contraseña</label>
+                  <input id="userPassword" type="password" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                  <label for="userRole" class="form-label fw-semibold">Rol</label>
+                  <select id="userRole" class="form-select" required>
+                    <option value="Explorador">Explorador</option>
+                    <option value="Promotor">Promotor</option>
+                    <option value="Validador">Validador</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-grid d-md-flex justify-content-md-end mt-4">
+                <button class="btn btn-primary px-4" type="submit">Crear perfil</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-7">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h2 class="h4 fw-bold mb-3">Información de gestión</h2>
+            <ul class="mb-0">
+              <li>Solo el promotor puede gestionar perfiles.</li>
+              <li>Los perfiles creados quedan vinculados a la misma zona del promotor.</li>
+              <li>La confianza por rol es:
+                <ul>
+                  <li>Promotor: 100%</li>
+                  <li>Explorador: 75%</li>
+                  <li>Validador: 50%</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="h4 fw-bold mb-3">Perfiles gestionados</h2>
+      <div id="usersList" class="row g-4"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/perfiles.js"></script>
+</body>
+</html>
