@@ -12,7 +12,7 @@ const {
   reorderItineraryEvents,
   updateItinerary,
   deleteItinerary
-} = require("../controllers/itinerary.controller");
+} = require("../Controllers/intinerario.controller");
 
 // Crear itinerario
 router.post("/", auth, createItinerary);

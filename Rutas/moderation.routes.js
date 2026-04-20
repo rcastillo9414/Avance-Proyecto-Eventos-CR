@@ -12,16 +12,15 @@ const {
   mergeDuplicateEvents,
   getRejectedEvents,
   findPossibleDuplicates
-} = require("../Controllers/moderation.controller");
+} = require("../controllers/moderation.controller");
 
-// Todas estas rutas son solo para moderadores
-router.get("/pending", auth, role("moderador"), getPendingEvents);
-router.get("/rejected", auth, role("moderador"), getRejectedEvents);
-router.get("/duplicates", auth, role("moderador"), findPossibleDuplicates);
+router.get("/pending", auth, role("Validador"), getPendingEvents);
+router.get("/rejected", auth, role("Validador"), getRejectedEvents);
+router.get("/duplicates", auth, role("Validador"), findPossibleDuplicates);
 
-router.put("/approve/:id", auth, role("moderador"), approveEvent);
-router.put("/reject/:id", auth, role("moderador"), rejectEvent);
-router.put("/recategorize/:id", auth, role("moderador"), recategorizeEvent);
-router.put("/merge-duplicates", auth, role("moderador"), mergeDuplicateEvents);
+router.put("/approve/:id", auth, role("Validador"), approveEvent);
+router.put("/reject/:id", auth, role("Validador"), rejectEvent);
+router.put("/recategorize/:id", auth, role("Validador"), recategorizeEvent);
+router.put("/merge-duplicates", auth, role("Validador"), mergeDuplicateEvents);
 
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const auth = require("../Middleware/auth");
 const role = require("../Middleware/role");
+const uploadEventImage = require("../Middleware/imgevento");
 
 const {
   createEvent,
@@ -19,7 +20,13 @@ const {
 } = require("../Controllers/event.controller");
 
 // Crear evento
-router.post("/", auth, role("promotor", "explorador", "moderador"), createEvent);
+router.post(
+  "/",
+  auth,
+  role("Promotor", "Explorador", "Validador"),
+  uploadEventImage.single("photoEvidence"),
+  createEvent
+);
 
 // Listar eventos
 router.get("/", getEvents);
@@ -43,7 +50,12 @@ router.put("/points/:id", auth, assignEventPoints);
 router.get("/:id", getEventById);
 
 // Editar evento
-router.put("/:id", auth, updateEvent);
+router.put(
+  "/:id",
+  auth,
+  uploadEventImage.single("photoEvidence"),
+  updateEvent
+);
 
 // Cancelar evento
 router.put("/cancel/:id", auth, cancelEvent);
