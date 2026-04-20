@@ -13,15 +13,15 @@ const usersToSeed = [
   {
     name: "Adi Aguacaliente",
     email: "initado_adi_aguacaliente@gmail.com",
-    password: "qwe123 ",
-    role: "explorador",
+    password: "qwe123",
+    role: "Explorador",
     zone: "San Jose"
   },
   {
     name: "Adi Ba",
     email: "validador_adi_ba@gmail.com",
     password: "zxc123",
-    role: "moderador",
+    role: "Validador",
     zone: "San Jose"
   }
 ];
