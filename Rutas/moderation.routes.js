@@ -12,7 +12,7 @@ const {
   mergeDuplicateEvents,
   getRejectedEvents,
   findPossibleDuplicates
-} = require("../controllers/moderation.controller");
+} = require("../Controllers/moderation.controller");
 
 router.get("/pending", auth, role("Validador"), getPendingEvents);
 router.get("/rejected", auth, role("Validador"), getRejectedEvents);

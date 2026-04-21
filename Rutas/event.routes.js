@@ -10,6 +10,7 @@ const {
   getEvents,
   getEventById,
   getMyEvents,
+  getNearbyEvents,
   updateEvent,
   cancelEvent,
   deleteEvent,
@@ -19,7 +20,6 @@ const {
   assignEventPoints
 } = require("../Controllers/event.controller");
 
-// Crear evento
 router.post(
   "/",
   auth,
@@ -28,39 +28,28 @@ router.post(
   createEvent
 );
 
-// Listar eventos
-router.get("/", getEvents);
-
-// Obtener mis eventos
+router.get("/", auth, role("Promotor", "Explorador", "Validador"), getEvents);
 router.get("/mine", auth, getMyEvents);
 
-// Marcar evento como realizado
-router.put("/complete/:id", auth, markEventAsCompleted);
+// NUEVO: eventos cercanos para dashboard
+router.get("/nearby", auth, role("Promotor", "Explorador", "Validador"), getNearbyEvents);
 
-// Registrar porcentaje de participación
-router.put("/attendance/:id", auth, registerAttendancePercentage);
+router.get("/:id", auth, role("Promotor", "Explorador", "Validador"), getEventById);
 
-// Confirmar nivel final de participación
-router.put("/attendance/confirm/:id", auth, confirmAttendanceLevel);
+router.put("/complete/:id", auth, role("Promotor"), markEventAsCompleted);
+router.put("/attendance/:id", auth, role("Promotor"), registerAttendancePercentage);
+router.put("/attendance/confirm/:id", auth, role("Promotor"), confirmAttendanceLevel);
+router.put("/points/:id", auth, role("Promotor"), assignEventPoints);
 
-// Asignar puntos al evento
-router.put("/points/:id", auth, assignEventPoints);
-
-// Obtener evento por ID
-router.get("/:id", getEventById);
-
-// Editar evento
 router.put(
   "/:id",
   auth,
+  role("Promotor"),
   uploadEventImage.single("photoEvidence"),
   updateEvent
 );
 
-// Cancelar evento
-router.put("/cancel/:id", auth, cancelEvent);
-
-// Eliminar evento
-router.delete("/:id", auth, deleteEvent);
+router.put("/cancel/:id", auth, role("Promotor"), cancelEvent);
+router.delete("/:id", auth, role("Promotor"), deleteEvent);
 
 module.exports = router;
