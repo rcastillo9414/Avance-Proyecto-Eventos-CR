@@ -191,7 +191,7 @@ async function createEvent(e) {
   const address = document.getElementById("address").value.trim();
   const photoEvidence = document.getElementById("photoEvidence").files[0];
 
-  // NUEVO: coordenadas opcionales elegidas en mapa
+  // coordenadas opcionales elegidas en mapa
   const latitude = document.getElementById("latitude")?.value.trim();
   const longitude = document.getElementById("longitude")?.value.trim();
 
@@ -228,7 +228,7 @@ async function createEvent(e) {
   formData.append("placeName", placeName);
   formData.append("address", address);
 
-  // NUEVO: enviar coordenadas solo si fueron marcadas manualmente
+  // enviar coordenadas solo si fueron marcadas manualmente
   if (latitude && longitude) {
     formData.append("latitude", latitude);
     formData.append("longitude", longitude);

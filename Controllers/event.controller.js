@@ -148,7 +148,7 @@ exports.createEvent = async (req, res) => {
 
     let geodata;
 
-    // NUEVO: si viene punto marcado manualmente, se usa ese
+    //  si viene punto marcado manualmente, se usa ese
     const parsedLat = Number(latitude);
     const parsedLng = Number(longitude);
 

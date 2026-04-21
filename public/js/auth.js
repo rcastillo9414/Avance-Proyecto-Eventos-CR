@@ -67,7 +67,7 @@ if (registerForm) {
   });
 }
 
-// NUEVO: solicitar recuperación
+// solicitar recuperación
 if (forgotForm) {
   forgotForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -95,7 +95,7 @@ if (forgotForm) {
   });
 }
 
-// NUEVO: restablecer contraseña
+//restablecer contraseña
 if (resetForm) {
   resetForm.addEventListener("submit", async (e) => {
     e.preventDefault();

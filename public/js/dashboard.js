@@ -42,7 +42,7 @@ if (user?.role !== "Promotor" && user?.role !== "Validador") {
 
 document.getElementById("logoutBtn").addEventListener("click", logout);
 
-// NUEVO: mapa y eventos cercanos
+// mapa y eventos cercanos
 let nearbyMap;
 let userMarker;
 let nearbyMarkersLayer;
