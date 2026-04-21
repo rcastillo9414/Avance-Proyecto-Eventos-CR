@@ -1,12 +1,10 @@
 const Itinerary = require("../Models/intinerario");
 const Event = require("../Models/event");
 
-/**
- * Crear itinerario
+/** Crear itinerario
  * Regla:
  * - Debe tener al menos 1 evento
- * - No tiene límite fijo de eventos
- */
+ * - No tiene límite fijo de eventos */
 exports.createItinerary = async (req, res) => {
   try {
     const { title, date, events } = req.body;

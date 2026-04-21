@@ -13,6 +13,78 @@ const canPromotorManageEvent = (user, event) => {
   return user.role === "Promotor" && user.zone === event.zone;
 };
 
+const canUserViewEvent = (user, event) => {
+  if (!user) return false;
+  if (user.role === "Promotor") return user.zone === event.zone;
+  if (user.role === "Explorador") return user.zone === event.zone;
+  if (user.role === "Validador") return user.zone === event.zone;
+  return false;
+};
+
+async function geocodeEventAddress({ placeName, address, zone }) {
+  try {
+    const parts = [placeName, address, zone, "Costa Rica"]
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+
+    if (!parts.length) {
+      return {
+        geocoded: false,
+        location: { type: "Point", coordinates: [0, 0] }
+      };
+    }
+
+    const query = parts.join(", ");
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "PartyCR/1.0"
+      }
+    });
+
+    if (!response.ok) {
+      return {
+        geocoded: false,
+        location: { type: "Point", coordinates: [0, 0] }
+      };
+    }
+
+    const results = await response.json();
+
+    if (!Array.isArray(results) || !results.length) {
+      return {
+        geocoded: false,
+        location: { type: "Point", coordinates: [0, 0] }
+      };
+    }
+
+    const first = results[0];
+    const latitude = Number(first.lat);
+    const longitude = Number(first.lon);
+
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+      return {
+        geocoded: false,
+        location: { type: "Point", coordinates: [0, 0] }
+      };
+    }
+
+    return {
+      geocoded: true,
+      location: {
+        type: "Point",
+        coordinates: [longitude, latitude]
+      }
+    };
+  } catch (error) {
+    return {
+      geocoded: false,
+      location: { type: "Point", coordinates: [0, 0] }
+    };
+  }
+}
+
 exports.createEvent = async (req, res) => {
   try {
     const {
@@ -22,7 +94,9 @@ exports.createEvent = async (req, res) => {
       date,
       zone,
       placeName,
-      address
+      address,
+      latitude,
+      longitude
     } = req.body;
 
     if (!title || !description || !date || !placeName) {
@@ -72,6 +146,28 @@ exports.createEvent = async (req, res) => {
 
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
+    let geodata;
+
+    // NUEVO: si viene punto marcado manualmente, se usa ese
+    const parsedLat = Number(latitude);
+    const parsedLng = Number(longitude);
+
+    if (!Number.isNaN(parsedLat) && !Number.isNaN(parsedLng)) {
+      geodata = {
+        geocoded: true,
+        location: {
+          type: "Point",
+          coordinates: [parsedLng, parsedLat]
+        }
+      };
+    } else {
+      geodata = await geocodeEventAddress({
+        placeName,
+        address,
+        zone: finalZone
+      });
+    }
+
     const event = await Event.create({
       title: title.trim(),
       description: description.trim(),
@@ -83,7 +179,9 @@ exports.createEvent = async (req, res) => {
       sourceType,
       status,
       photoEvidence: imagePath,
-      createdBy: req.user._id
+      createdBy: req.user._id,
+      location: geodata.location,
+      geocoded: geodata.geocoded
     });
 
     await AuditLog.create({
@@ -96,7 +194,8 @@ exports.createEvent = async (req, res) => {
         title: event.title,
         status: event.status,
         sourceType: event.sourceType,
-        photoEvidence: event.photoEvidence
+        photoEvidence: event.photoEvidence,
+        geocoded: event.geocoded
       }
     });
 
@@ -121,12 +220,13 @@ exports.createEvent = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
   try {
-    const { status, zone, sourceType, category, placeName } = req.query;
+    const { status, sourceType, category, placeName } = req.query;
 
-    const filters = {};
+    const filters = {
+      zone: req.user.zone
+    };
 
     if (status) filters.status = status;
-    if (zone) filters.zone = zone;
     if (sourceType) filters.sourceType = sourceType;
     if (category) filters.category = { $in: [category] };
     if (placeName) filters.placeName = { $regex: placeName, $options: "i" };
@@ -166,6 +266,12 @@ exports.getEventById = async (req, res) => {
       });
     }
 
+    if (!canUserViewEvent(req.user, event)) {
+      return res.status(403).json({
+        message: "No tienes permisos para ver este evento"
+      });
+    }
+
     return res.status(200).json(event);
   } catch (error) {
     return res.status(500).json({
@@ -191,6 +297,60 @@ exports.getMyEvents = async (req, res) => {
   }
 };
 
+exports.getNearbyEvents = async (req, res) => {
+  try {
+    const { lat, lng, radius } = req.query;
+
+    const latitude = Number(lat);
+    const longitude = Number(lng);
+    const maxDistance = Number(radius) || 10000;
+
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+      return res.status(400).json({
+        message: "Latitud y longitud son obligatorias y deben ser numéricas"
+      });
+    }
+
+    const nearbyEvents = await Event.find({
+      zone: req.user.zone,
+      geocoded: true,
+      status: { $in: ["publicado", "realizado"] },
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [longitude, latitude]
+          },
+          $maxDistance: maxDistance
+        }
+      }
+    })
+      .populate("createdBy", "name email role zone points")
+      .limit(20);
+
+    const events = nearbyEvents.map((event) => {
+      const eventObj = event.toObject();
+      const [eventLng, eventLat] = event.location?.coordinates || [0, 0];
+
+      return {
+        ...eventObj,
+        latitude: eventLat,
+        longitude: eventLng
+      };
+    });
+
+    return res.status(200).json({
+      total: events.length,
+      events
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al buscar eventos cercanos",
+      error: error.message
+    });
+  }
+};
+
 exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -201,7 +361,9 @@ exports.updateEvent = async (req, res) => {
       date,
       zone,
       placeName,
-      address
+      address,
+      latitude,
+      longitude
     } = req.body;
 
     const event = await Event.findById(id);
@@ -224,7 +386,14 @@ exports.updateEvent = async (req, res) => {
       });
     }
 
+    if (event.status === "realizado") {
+      return res.status(400).json({
+        message: "No se puede editar un evento realizado"
+      });
+    }
+
     const changes = {};
+    let shouldRegeocode = false;
 
     if (date !== undefined) {
       const newDate = new Date(date);
@@ -277,22 +446,54 @@ exports.updateEvent = async (req, res) => {
     if (zone !== undefined) {
       changes.zone = { previous: event.zone, next: zone.trim() };
       event.zone = zone.trim();
+      shouldRegeocode = true;
     }
 
     if (placeName !== undefined) {
       changes.placeName = { previous: event.placeName, next: placeName.trim() };
       event.placeName = placeName.trim();
+      shouldRegeocode = true;
     }
 
     if (address !== undefined) {
       changes.address = { previous: event.address, next: address.trim() };
       event.address = address.trim();
+      shouldRegeocode = true;
     }
 
     if (req.file) {
       const imagePath = `/uploads/${req.file.filename}`;
       changes.photoEvidence = { previous: event.photoEvidence, next: imagePath };
       event.photoEvidence = imagePath;
+    }
+
+    const parsedLat = Number(latitude);
+    const parsedLng = Number(longitude);
+
+    if (!Number.isNaN(parsedLat) && !Number.isNaN(parsedLng)) {
+      event.location = {
+        type: "Point",
+        coordinates: [parsedLng, parsedLat]
+      };
+      event.geocoded = true;
+      changes.location = {
+        previous: "actualizada automáticamente",
+        next: "ubicación marcada manualmente"
+      };
+    } else if (shouldRegeocode) {
+      const geodata = await geocodeEventAddress({
+        placeName: event.placeName,
+        address: event.address,
+        zone: event.zone
+      });
+
+      event.location = geodata.location;
+      event.geocoded = geodata.geocoded;
+
+      changes.location = {
+        previous: "actualizada automáticamente",
+        next: geodata.geocoded ? "ubicación geocodificada" : "sin coordenadas válidas"
+      };
     }
 
     await event.save();
@@ -346,6 +547,12 @@ exports.cancelEvent = async (req, res) => {
     if (event.status === "cancelado") {
       return res.status(400).json({
         message: "El evento ya se encuentra cancelado"
+      });
+    }
+
+    if (event.status === "realizado") {
+      return res.status(400).json({
+        message: "No se puede cancelar un evento realizado"
       });
     }
 
@@ -421,6 +628,7 @@ exports.deleteEvent = async (req, res) => {
         deletedEvent: {
           title: event.title,
           status: event.status,
+          sourceType: event.sourceType,
           photoEvidence: event.photoEvidence
         }
       }

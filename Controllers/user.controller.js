@@ -1,6 +1,8 @@
 const User = require("../Models/Usuario");
 const AuditLog = require("../Models/Auditoria");
 
+const MASTER_PROMOTER_EMAIL = "p_adi_kamakiri@gmail.com";
+
 const getTrustLevelByRole = (role) => {
   if (role === "Promotor") return 100;
   if (role === "Explorador") return 75;
@@ -10,7 +12,7 @@ const getTrustLevelByRole = (role) => {
 
 exports.createManagedUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, zone } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({
@@ -34,12 +36,24 @@ exports.createManagedUser = async (req, res) => {
       });
     }
 
+    let finalZone = req.user.zone;
+
+    if (req.user.email === MASTER_PROMOTER_EMAIL && role === "Promotor") {
+      if (!zone || !zone.trim()) {
+        return res.status(400).json({
+          message: "La zona es obligatoria al crear un Promotor desde el promotor principal"
+        });
+      }
+
+      finalZone = zone.trim();
+    }
+
     const user = await User.create({
       name,
       email,
       password,
       role,
-      zone: req.user.zone,
+      zone: finalZone,
       createdBy: req.user._id
     });
 
@@ -81,10 +95,17 @@ exports.createManagedUser = async (req, res) => {
 
 exports.getManagedProfiles = async (req, res) => {
   try {
-    const users = await User.find({
-      createdBy: req.user._id,
-      zone: req.user.zone
-    }).select("-password");
+    let users;
+
+    // NUEVO: el promotor principal puede ver todos los usuarios creados
+    if (req.user.email === MASTER_PROMOTER_EMAIL) {
+      users = await User.find({}).select("-password");
+    } else {
+      users = await User.find({
+        createdBy: req.user._id,
+        zone: req.user.zone
+      }).select("-password");
+    }
 
     const formattedUsers = users.map((user) => ({
       ...user.toObject(),
