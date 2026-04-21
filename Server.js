@@ -9,6 +9,7 @@ const eventRoutes = require("./Rutas/event.routes");
 const itineraryRoutes = require("./Rutas/intinerario.routes");
 const moderationRoutes = require("./Rutas/moderation.routes");
 const userRoutes = require("./Rutas/user.routes");
+const auditRoutes = require("./Rutas/auditoria-routes");
 
 const auth = require("./Middleware/auth");
 const role = require("./Middleware/role");
@@ -34,6 +35,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/itineraries", itineraryRoutes);
 app.use("/api/moderation", moderationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/audit", auditRoutes);
 
 // Ruta privada de prueba
 app.get("/api/private", auth, (req, res) => {
