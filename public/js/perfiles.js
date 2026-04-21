@@ -1,14 +1,34 @@
 requireAuth();
 
 const user = getUser();
+const MASTER_PROMOTER_EMAIL = "p_adi_kamakiri@gmail.com";
 
 document.getElementById("logoutBtn").addEventListener("click", logout);
 
 const createSection = document.getElementById("createUserForm")?.closest(".card")?.closest(".col-12");
 const infoSection = document.querySelector(".col-12.col-xl-7");
 
+const userRoleSelect = document.getElementById("userRole");
+const userZoneWrapper = document.getElementById("userZoneWrapper");
+const userZoneInput = document.getElementById("userZone");
+
+function updateZoneFieldVisibility() {
+  const isMasterPromoter = user?.email === MASTER_PROMOTER_EMAIL;
+  const selectedRole = userRoleSelect?.value;
+
+  if (isMasterPromoter && selectedRole === "Promotor") {
+    userZoneWrapper?.classList.remove("d-none");
+  } else {
+    userZoneWrapper?.classList.add("d-none");
+    if (userZoneInput) userZoneInput.value = "";
+  }
+}
+
+document.getElementById("userRole")?.addEventListener("change", updateZoneFieldVisibility);
+
 if (user?.role === "Promotor") {
   document.getElementById("createUserForm").addEventListener("submit", createManagedUser);
+  updateZoneFieldVisibility();
   loadManagedUsers();
 } else if (user?.role === "Explorador" || user?.role === "Validador") {
   if (createSection) createSection.style.display = "none";
@@ -30,7 +50,8 @@ async function createManagedUser(e) {
     name: document.getElementById("userName").value.trim(),
     email: document.getElementById("userEmail").value.trim(),
     password: document.getElementById("userPassword").value.trim(),
-    role: document.getElementById("userRole").value
+    role: document.getElementById("userRole").value,
+    zone: document.getElementById("userZone")?.value.trim() || ""
   };
 
   try {
@@ -48,6 +69,7 @@ async function createManagedUser(e) {
 
     showMessage("usersMessage", data.message, "success");
     document.getElementById("createUserForm").reset();
+    updateZoneFieldVisibility();
     loadManagedUsers();
   } catch (error) {
     console.error("Error al crear perfil:", error);
@@ -57,7 +79,7 @@ async function createManagedUser(e) {
 
 async function loadManagedUsers() {
   const list = document.getElementById("usersList");
-  list.innerHTML = `<div class="col-12"><p>Cargando perfiles...</p></div>`;
+  list.innerHTML = `<div class="col-12"><p>Cargando perfiles.</p></div>`;
 
   try {
     const response = await fetch(`${API_BASE_URL}/users/mine`, {
@@ -112,7 +134,7 @@ async function loadManagedUsers() {
 
 async function loadZoneUsers() {
   const list = document.getElementById("usersList");
-  list.innerHTML = `<div class="col-12"><p>Cargando perfiles de la zona...</p></div>`;
+  list.innerHTML = `<div class="col-12"><p>Cargando perfiles de la zona.</p></div>`;
 
   try {
     const response = await fetch(`${API_BASE_URL}/users/zone`, {

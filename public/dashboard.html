@@ -13,6 +13,10 @@
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
   />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body class="bg-light">
@@ -32,11 +36,14 @@
 
       <div class="collapse navbar-collapse" id="mainNavbar">
         <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="dashboard.html">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="eventos.html">Eventos</a></li>
-          <li class="nav-item"><a class="nav-link" href="intinerarios.html">Intinerarios</a></li>
+          <li class="nav-item"><a class="nav-link active" href="crear-evento.html">Crear evento</a></li>
+          <li class="nav-item"><a class="nav-link" href="intinerarios.html">Itinerarios</a></li>
           <li class="nav-item"><a class="nav-link" href="moderation.html" id="validationLink">Validación</a></li>
           <li class="nav-item"><a class="nav-link" href="perfiles.html" id="usersLink">Perfiles</a></li>
+          <li class="nav-item"><a class="nav-link" href="auditoria.html" id="auditLink">Auditoría</a></li>
+
           <li class="nav-item">
             <button id="logoutBtn" type="button" class="btn btn-outline-danger btn-sm mt-2 mt-lg-0">
               Cerrar sesión
@@ -56,7 +63,7 @@
     </section>
 
     <section class="row g-4 mb-4" id="dashboardCards">
-      <div class="col-12 col-md-6 col-xl-4">
+      <div class="col-4 col-md-6 col-xl-4">
         <div class="card h-100 border-0 shadow-sm rounded-4">
           <div class="card-body">
             <h3 class="h5 fw-bold">Eventos</h3>
@@ -66,7 +73,7 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-6 col-xl-4">
+      <div class="col-8 col-md-6 col-xl-4">
         <div class="card h-100 border-0 shadow-sm rounded-4">
           <div class="card-body">
             <h3 class="h5 fw-bold">Itinerarios</h3>
@@ -75,8 +82,17 @@
           </div>
         </div>
       </div>
+      <div class="col-8 col-md-6 col-xl-4" id="auditCard">
+  <div class="card h-100 border-0 shadow-sm rounded-4">
+    <div class="card-body">
+      <h3 class="h5 fw-bold">Auditoría</h3>
+      <p class="text-muted">Consulta acciones registradas sobre eventos, perfiles y validaciones en tu zona.</p>
+      <a class="btn btn-primary" href="auditoria.html">Ver auditoría</a>
+    </div>
+  </div>
+</div>
 
-      <div class="col-12 col-md-6 col-xl-4" id="validationCard">
+      <div class="col-8 col-md-6 col-xl-4" id="validationCard">
         <div class="card h-100 border-0 shadow-sm rounded-4">
           <div class="card-body">
             <h3 class="h5 fw-bold">Validación</h3>
@@ -86,7 +102,7 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-6 col-xl-4" id="usersCard">
+      <div class="col-8 col-md-6 col-xl-4" id="usersCard">
         <div class="card h-100 border-0 shadow-sm rounded-4">
           <div class="card-body">
             <h3 class="h5 fw-bold">Perfiles</h3>
@@ -97,7 +113,7 @@
       </div>
     </section>
 
-    <section>
+    <section class="mb-4">
       <h2 class="h4 fw-bold mb-3">Resumen rápido</h2>
 
       <div class="row g-4">
@@ -138,9 +154,52 @@
         </div>
       </div>
     </section>
+
+    <!-- NUEVO: mapa de eventos cercanos -->
+    <section>
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+        <div>
+          <h2 class="h4 fw-bold mb-1">Eventos cercanos</h2>
+          <p class="text-muted mb-0">Se muestran según tu ubicación actual y dentro de tu misma zona.</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <label for="nearbyRadius" class="form-label mb-0 fw-semibold">Radio</label>
+          <select id="nearbyRadius" class="form-select">
+            <option value="3000">3 km</option>
+            <option value="5000">5 km</option>
+            <option value="10000" selected>10 km</option>
+            <option value="20000">20 km</option>
+          </select>
+          <button id="reloadNearbyBtn" class="btn btn-primary" type="button">Actualizar</button>
+        </div>
+      </div>
+
+      <div id="nearbyEventsMessage" class="alert d-none" role="alert"></div>
+
+      <div class="row g-4">
+        <div class="col-12 col-xl-8">
+          <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div id="nearbyMap" style="height: 480px;"></div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+              <h3 class="h5 fw-bold mb-3">Lista cercana</h3>
+              <div id="nearbyEventsList" class="d-grid gap-3">
+                <p class="text-muted mb-0">Solicitando ubicación y cargando eventos...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/dashboard.js"></script>

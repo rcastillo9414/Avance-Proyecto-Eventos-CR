@@ -27,7 +27,10 @@ async function loadAvailableEvents() {
   container.innerHTML = `<p class="mb-0 text-muted">Cargando eventos disponibles...</p>`;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/events?status=publicado`);
+    const response = await fetch(`${API_BASE_URL}/events?status=publicado`, {
+      headers: authHeaders()
+    });
+
     const { data, rawText } = await readResponse(response);
 
     if (!response.ok || !data?.events || data.events.length === 0) {

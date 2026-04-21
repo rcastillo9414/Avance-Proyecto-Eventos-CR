@@ -90,6 +90,15 @@
                     <option value="Validador">Validador</option>
                   </select>
                 </div>
+
+                <!-- NUEVO: zona manual para el promotor principal -->
+                <div class="col-12 d-none" id="userZoneWrapper">
+                  <label for="userZone" class="form-label fw-semibold">Zona</label>
+                  <input id="userZone" type="text" class="form-control" placeholder="Ej: Heredia" />
+                  <small class="text-muted">
+                    Solo el promotor principal puede asignar zona manual al crear Promotores.
+                  </small>
+                </div>
               </div>
 
               <div class="d-grid d-md-flex justify-content-md-end mt-4">
@@ -106,7 +115,7 @@
             <h2 class="h4 fw-bold mb-3">Información de gestión</h2>
             <ul class="mb-0">
               <li>Solo el promotor puede gestionar perfiles.</li>
-              <li>Los perfiles creados quedan vinculados a la misma zona del promotor.</li>
+              <li>Los perfiles creados quedan vinculados a la misma zona del promotor, excepto cuando el promotor principal crea un Promotor nuevo y le asigna una zona manualmente.</li>
               <li>La confianza por rol es:
                 <ul>
                   <li>Promotor: 100%</li>

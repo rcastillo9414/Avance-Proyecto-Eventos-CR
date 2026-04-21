@@ -32,10 +32,13 @@
 
       <div class="collapse navbar-collapse" id="mainNavbar">
         <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-          <li class="nav-item"><a class="nav-link" href="dashboard.html">Inicio</a></li>
+         <li class="nav-item"><a class="nav-link" href="dashboard.html">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="eventos.html">Eventos</a></li>
+          <li class="nav-item"><a class="nav-link active" href="crear-evento.html">Crear evento</a></li>
           <li class="nav-item"><a class="nav-link" href="intinerarios.html">Intinerarios</a></li>
-          <li class="nav-item">
+          <li class="nav-item"><a class="nav-link" href="moderation.html" id="validationLink">Validación</a></li>
+          <li class="nav-item"><a class="nav-link" href="perfiles.html" id="usersLink">Perfiles</a></li>
+          <li class="nav-item"><a class="nav-link" href="auditoria.html" id="auditLink">Auditoría</a></li>
             <button id="logoutBtn" type="button" class="btn btn-outline-danger btn-sm mt-2 mt-lg-0">
               Cerrar sesión
             </button>
@@ -64,64 +67,152 @@
     </section>
 
     <section class="row g-4" id="eventActionsSection">
-      <div class="col-12 col-lg-6">
+      <div class="col-12 col-xl-6">
         <div class="card border-0 shadow-sm rounded-4 h-100">
           <div class="card-body">
-            <h3 class="h5 fw-bold">Marcar como realizado</h3>
-            <p class="text-muted">Solo el promotor de la misma zona puede cerrar el evento.</p>
-            <button class="btn btn-success w-100" id="completeEventBtn" type="button">
-              Marcar realizado
-            </button>
-          </div>
-        </div>
-      </div>
+            <h3 class="h5 fw-bold">Editar evento</h3>
 
-      <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-          <div class="card-body">
-            <h3 class="h5 fw-bold">Registrar participación</h3>
-            <form id="attendanceForm">
-              <div class="mb-3">
-                <label for="attendancePercentage" class="form-label fw-semibold">Porcentaje (0 a 100)</label>
-                <input id="attendancePercentage" type="number" min="0" max="100" class="form-control" required />
+            <form id="editEventForm" enctype="multipart/form-data">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="editTitle" class="form-label fw-semibold">Título</label>
+                  <input id="editTitle" type="text" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                  <label for="editDescription" class="form-label fw-semibold">Descripción</label>
+                  <textarea id="editDescription" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="editCategory" class="form-label fw-semibold">Categorías</label>
+                  <input id="editCategory" type="text" class="form-control" placeholder="Cultura, Feria, Música" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="editDate" class="form-label fw-semibold">Fecha</label>
+                  <input id="editDate" type="datetime-local" class="form-control" required />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="editZone" class="form-label fw-semibold">Zona</label>
+                  <input id="editZone" type="text" class="form-control" required />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="editPlaceName" class="form-label fw-semibold">Lugar</label>
+                  <input id="editPlaceName" type="text" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                  <label for="editAddress" class="form-label fw-semibold">Dirección</label>
+                  <input id="editAddress" type="text" class="form-control" />
+                </div>
+
+                <div class="col-12">
+                  <label for="editPhotoEvidence" class="form-label fw-semibold">Nueva imagen (opcional)</label>
+                  <input id="editPhotoEvidence" type="file" class="form-control" accept="image/*" />
+                </div>
               </div>
-              <button class="btn btn-primary w-100" type="submit">Guardar participación</button>
+
+              <div class="d-grid mt-4">
+                <button class="btn btn-primary" type="submit">Guardar cambios</button>
+              </div>
             </form>
           </div>
         </div>
       </div>
 
-      <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-          <div class="card-body">
-            <h3 class="h5 fw-bold">Confirmar clasificación final</h3>
-            <form id="confirmAttendanceForm">
-              <div class="mb-3">
-                <label for="attendanceLevel" class="form-label fw-semibold">Nivel final</label>
-                <select id="attendanceLevel" class="form-select" required>
-                  <option value="alta">Alta</option>
-                  <option value="moderada">Moderada</option>
-                  <option value="regular">Regular</option>
-                  <option value="baja">Baja</option>
-                </select>
+      <div class="col-12 col-xl-6">
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Cancelar evento</h3>
+                <p class="text-muted">
+                  El promotor puede cancelar eventos futuros de su misma zona.
+                </p>
+                <button class="btn btn-warning w-100" id="cancelEventBtn" type="button">
+                  Cancelar evento
+                </button>
               </div>
-              <button class="btn btn-warning w-100" type="submit">Confirmar clasificación</button>
-            </form>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-          <div class="card-body">
-            <h3 class="h5 fw-bold">Asignar puntos</h3>
-            <form id="pointsForm">
-              <div class="mb-3">
-                <label for="assignedPoints" class="form-label fw-semibold">Puntos (1 a 10)</label>
-                <input id="assignedPoints" type="number" min="1" max="10" class="form-control" required />
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Eliminar evento</h3>
+                <p class="text-muted">
+                  Solo se pueden eliminar eventos en estado pendiente de confirmación.
+                </p>
+                <button class="btn btn-danger w-100" id="deleteEventBtn" type="button">
+                  Eliminar evento
+                </button>
               </div>
-              <button class="btn btn-primary w-100" type="submit">Asignar puntos</button>
-            </form>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Marcar como realizado</h3>
+                <p class="text-muted">Solo el promotor de la misma zona puede cerrar el evento.</p>
+                <button class="btn btn-success w-100" id="completeEventBtn" type="button">
+                  Marcar realizado
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Registrar participación</h3>
+                <form id="attendanceForm">
+                  <div class="mb-3">
+                    <label for="attendancePercentage" class="form-label fw-semibold">Porcentaje (0 a 100)</label>
+                    <input id="attendancePercentage" type="number" min="0" max="100" class="form-control" required />
+                  </div>
+                  <button class="btn btn-primary w-100" type="submit">Guardar participación</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Confirmar clasificación final</h3>
+                <form id="confirmAttendanceForm">
+                  <div class="mb-3">
+                    <label for="attendanceLevel" class="form-label fw-semibold">Nivel final</label>
+                    <select id="attendanceLevel" class="form-select" required>
+                      <option value="alta">Alta</option>
+                      <option value="moderada">Moderada</option>
+                      <option value="regular">Regular</option>
+                      <option value="baja">Baja</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-warning w-100" type="submit">Confirmar clasificación</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Asignar puntos</h3>
+                <form id="pointsForm">
+                  <div class="mb-3">
+                    <label for="assignedPoints" class="form-label fw-semibold">Puntos (1 a 10)</label>
+                    <input id="assignedPoints" type="number" min="1" max="10" class="form-control" required />
+                  </div>
+                  <button class="btn btn-dark w-100" type="submit">Asignar puntos</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
