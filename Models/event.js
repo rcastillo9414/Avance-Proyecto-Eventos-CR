@@ -20,20 +20,16 @@ const eventSchema = new mongoose.Schema(
       maxlength: [1000, "La descripción no puede superar los 1000 caracteres"]
     },
 
-    // Categorías del evento
-    // Ejemplo: ["Cultura", "Artesanía", "AireLibre"]
     category: {
       type: [String],
       default: []
     },
 
-    // Fecha y hora del evento
     date: {
       type: Date,
       required: [true, "La fecha del evento es obligatoria"]
     },
 
-    // Zona general donde pertenece el evento
     zone: {
       type: String,
       required: [true, "La zona es obligatoria"],
@@ -41,8 +37,6 @@ const eventSchema = new mongoose.Schema(
       maxlength: [100, "La zona no puede superar los 100 caracteres"]
     },
 
-    // Nombre del pueblo, ciudad, local o punto de referencia principal
-    // Ejemplo: "Parque Central de Naranjo"
     placeName: {
       type: String,
       required: [true, "El nombre del lugar es obligatorio"],
@@ -51,8 +45,6 @@ const eventSchema = new mongoose.Schema(
       maxlength: [150, "El nombre del lugar no puede superar los 150 caracteres"]
     },
 
-    // Dirección adicional opcional
-    // Ejemplo: "Costado norte de la iglesia"
     address: {
       type: String,
       default: "",
@@ -60,9 +52,25 @@ const eventSchema = new mongoose.Schema(
       maxlength: [250, "La dirección no puede superar los 250 caracteres"]
     },
 
-    // Tipo de fuente del evento
-    // oficial: creado por promotor
-    // comunitaria: creado por explorador u otro usuario
+    // Ubicación geoespacial interna generada en  backend
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point"
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: [0, 0]
+      }
+    },
+
+    // Indica si se logró geocodificar correctamente
+    geocoded: {
+      type: Boolean,
+      default: false
+    },
+
     sourceType: {
       type: String,
       enum: {
@@ -72,7 +80,6 @@ const eventSchema = new mongoose.Schema(
       default: "comunitaria"
     },
 
-    // Estado actual del evento
     status: {
       type: String,
       enum: {
@@ -82,35 +89,30 @@ const eventSchema = new mongoose.Schema(
       default: "por_verificar"
     },
 
-    // URL o ruta de la evidencia fotográfica
     photoEvidence: {
       type: String,
       default: "",
       trim: true
     },
 
-    // Usuario que creó el evento
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "El usuario creador es obligatorio"]
     },
 
-    // Usuario que validó el evento, si aplica
     validatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null
     },
 
-    // Usuario que rechazó el evento, si aplica
     rejectedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null
     },
 
-    // Motivo del rechazo
     rejectionReason: {
       type: String,
       default: "",
@@ -118,14 +120,12 @@ const eventSchema = new mongoose.Schema(
       maxlength: [300, "La razón del rechazo no puede superar los 300 caracteres"]
     },
 
-    // Referencia al evento principal si este fue fusionado por duplicidad
     duplicateOf: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
       default: null
     },
 
-    // Porcentaje de participación final del evento
     attendancePercentage: {
       type: Number,
       min: [0, "El porcentaje no puede ser menor a 0"],
@@ -133,7 +133,6 @@ const eventSchema = new mongoose.Schema(
       default: null
     },
 
-    // Clasificación automática o final de participación
     attendanceLevel: {
       type: String,
       enum: {
@@ -143,13 +142,11 @@ const eventSchema = new mongoose.Schema(
       default: null
     },
 
-    // Indica si el promotor confirmó manualmente la clasificación final
     attendanceConfirmedByPromoter: {
       type: Boolean,
       default: false
     },
 
-    // Puntos asignados al evento cuando ya fue realizado
     assignedPoints: {
       type: Number,
       min: [1, "Los puntos mínimos son 1"],
@@ -157,20 +154,17 @@ const eventSchema = new mongoose.Schema(
       default: null
     },
 
-    // Fecha en que se marcaron los puntos
     pointsAssignedAt: {
       type: Date,
       default: null
     },
 
-    // Usuario que asignó los puntos
     pointsAssignedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null
     },
 
-    // Fecha en la que el evento fue marcado como realizado
     completedAt: {
       type: Date,
       default: null
@@ -180,5 +174,8 @@ const eventSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+// Indice geoespacial para búsquedas cercanas
+eventSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Event", eventSchema);
