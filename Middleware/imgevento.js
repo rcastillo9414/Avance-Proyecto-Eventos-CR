@@ -31,7 +31,7 @@ const fileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-// Exportar multer (NO async)
+// Exporta multer 
 const upload = multer({
   storage,
   fileFilter,
